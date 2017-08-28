@@ -11,9 +11,9 @@ AudioIn in;
 int bands = 512;
 float r_width;
 float[] sum = new float[bands];
-float smooth_factor = 0.2;
+float smooth_factor = 0.4;
 int readBands = 24;
-float threshold = 0.005;
+float threshold = 0.015;
 
 int numValues = 4;
 int[] validTones = {16, 14, 12, 10, 9, 8, 7, 5};
@@ -22,7 +22,7 @@ int current = 0;
 
 int t = 0;
 int t_last = 0;
-int t_espera = 15;
+int t_espera = 45;
 
 boolean debug = false;
 
@@ -36,6 +36,8 @@ void setup() {
   fft.input(in);
   textSize(32);  
   sequence = generateSequence();
+  photo = loadImage("richard-lytle-eos.png");
+  photo.loadPixels();
 }      
 
 void draw() {  
@@ -44,11 +46,7 @@ void draw() {
   background(255);
   fill(0, 0, 255);
   noStroke();
-  fft.analyze();
-  
-  photo = loadImage("richard-lytle-eos.png");
-  image(photo,0,0);
-  photo.loadPixels();  
+  fft.analyze();          
   
   // Pixels
   int value = (sequence.length-current)*10;
@@ -95,8 +93,15 @@ void draw() {
     
   }    
   
+  if ((debug)&&(t < (t_last + t_espera))) {
+    // Esperando a que se apague la nota anterior
+    fill(255,0,0);
+    ellipse (20,20,10,10);
+  }
+  
   // Chequeo si hay nota y ha acertado
   if ((maxBand > 0)&&(current != sequence.length)&&(t > (t_last + t_espera))) {
+    println("Nota a comprobar "+maxBand);
     t_last = t;
     if (maxBand == sequence[current]) {
       // Success
@@ -117,9 +122,9 @@ int[] generateSequence() {
   for (int i=0; i<numValues; i++) {
     int t = int(random(0, validTones.length));    
     result[i] = validTones[t];
-    println(result[i]);
+    //println(result[i]);
   }
-  //int[] result2 = {8,12,14,9};  
-  //return result2;
-  return result;  
+  int[] result2 = {8,12,14,9};  
+  return result2;
+  //return result;  
 }
